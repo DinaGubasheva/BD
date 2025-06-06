@@ -1,0 +1,71 @@
+UDE Olympic;
+
+CREATE TRIGGER trg_InsertParticipant
+ON Participants
+AFTER INSERT
+AS
+BEGIN
+    IF EXISTS (SELECT * FROM inserted)
+    BEGIN
+        INSERT INTO AuditLog (ChangeType, ChangedEntity, ChangeDate)
+        SELECT 'INSERT', 'Participants', GETDATE()
+        FROM inserted; 
+    END
+END;
+GO 
+
+CREATE TRIGGER trg_CheckResult
+ON Participation_Results
+AFTER INSERT
+AS
+BEGIN
+    IF EXISTS (SELECT * FROM inserted WHERE Result < 0)
+    BEGIN
+        RAISERROR ('Results cannot be negative', 16, 1);
+        ROLLBACK TRANSACTION; 
+    END
+END;
+GO
+
+CREATE TRIGGER trg_UpdateParticipationCount
+ON Participation_in_Olympiads
+AFTER INSERT
+AS
+BEGIN
+    UPDATE o
+    SET ParticipantCount = o.ParticipantCount + i.CountAdded
+    FROM Olympiads o
+    JOIN (
+        SELECT OlympiadID, COUNT(*) AS CountAdded
+        FROM inserted
+        GROUP BY OlympiadID
+    ) i ON o.OlympiadID = i.OlympiadID;
+END;
+GO
+
+CREATE TRIGGER trg_UpdateParticipationResult
+ON Participation_Results
+AFTER UPDATE
+AS
+BEGIN
+    IF EXISTS (SELECT * FROM inserted)
+ BEGIN
+       INSERT INTO AuditLog (ChangeType, ChangedEntity, ChangeDate)
+       SELECT 'UPDATE', 'Participation_Results', GETDATE()
+       FROM inserted;
+    END
+END;
+GO
+
+CREATE TRIGGER trg_DeleteParticipationResults
+ON Participation_in_Olympiads
+AFTER DELETE
+AS
+BEGIN
+    IF EXISTS (SELECT * FROM deleted)
+    BEGIN
+        DELETE FROM Participation_Results
+        WHERE ParticipationID IN (SELECT ParticipationID FROM deleted);
+    END
+END;
+GO
