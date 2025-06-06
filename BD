@@ -1,0 +1,49 @@
+CREATE DATABASE Olympic;
+
+USE Olympic;
+
+CREATE TABLE Organizers (
+    Organizer_ID INT PRIMARY KEY, 
+    Organizer_Name VARCHAR(255) 
+);
+
+CREATE TABLE Participants (
+    Participant_ID INT PRIMARY KEY, 
+    Participant_Name VARCHAR(255),
+    Participant_DOB DATE,
+    Participant_Class VARCHAR(50),
+    Participant_School VARCHAR(255)
+);
+
+CREATE TABLE Olympiad_Subjects (
+    Subject_ID INT PRIMARY KEY, 
+    Subject_Name VARCHAR(255) 
+);
+
+CREATE TABLE Olympiadss (
+    Olympiad_ID INT PRIMARY KEY, 
+    Olympiad_Name VARCHAR(255), 
+    Olympiad_Date DATE, 
+    Organizer_ID INT,
+);
+
+ALTER TABLE Olympiads
+ADD FOREIGN KEY (Organizer_ID) REFERENCES Organizers(Organizer_ID);
+
+
+CREATE TABLE Participation_in_Olympiads (
+    Participation_ID INT PRIMARY KEY, 
+    Participant_ID INT, 
+    Olympiad_ID INT, 
+ ID_Subject INT,
+    FOREIGN KEY (Participant_ID) REFERENCES Participants(Participant_ID),
+    FOREIGN KEY (Olympiad_ID) REFERENCES Olympiads(Olympiad_ID)
+);
+
+CREATE TABLE Participation_Results (
+    Result_ID INT PRIMARY KEY, 
+    Participation_ID INT, 
+    Result_Score INT, 
+    Result_Place INT,
+    FOREIGN KEY (Participation_ID) REFERENCES Participation_in_Olympiad(Participation_ID)
+);
