@@ -1,0 +1,60 @@
+USE Olympic;
+
+
+CREATE PROCEDURE sp_AddParticipant
+    @Name NVARCHAR(100)
+AS
+BEGIN
+    INSERT INTO Participants (Name)
+    VALUES (@Name);
+END;
+GO
+
+
+CREATE PROCEDURE sp_RegisterParticipation
+    @ParticipantID INT,
+    @OlympiadID INT,
+    @SubjectID INT
+AS
+BEGIN
+    INSERT INTO Participation_in_Olympiads (ParticipantID, OlympiadID, SubjectID)
+    VALUES (@ParticipantID, @OlympiadID, @SubjectID);
+END;
+GO
+
+
+CREATE PROCEDURE sp_UpdateResult
+    @ParticipationID INT,
+    @Result INT
+AS
+BEGIN
+    UPDATE Participation_Results
+    SET Result = @Result
+    WHERE ParticipationID = @ParticipationID;
+END;
+GO
+
+
+CREATE PROCEDURE sp_GetParticipantResults
+    @ParticipantID INT
+AS
+BEGIN
+    SELECT o.OlympiadName, pr.Result
+    FROM Participation_in_Olympiads poi
+    JOIN Olympiads o ON poi.OlympiadID = o.OlympiadID
+    JOIN Participation_Results pr ON poi.ParticipationID = pr.ParticipationID
+    WHERE poi.ParticipantID = @ParticipantID;
+END;
+GO
+
+
+CREATE PROCEDURE sp_DeleteParticipant
+    @ParticipantID INT
+AS
+BEGIN
+    DELETE FROM Participation_in_Olympiads
+    WHERE ParticipantID = @ParticipantID;
+    DELETE FROM Participants
+    WHERE ParticipantID = @ParticipantID;
+END;
+GO
