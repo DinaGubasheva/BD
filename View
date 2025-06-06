@@ -1,0 +1,33 @@
+USE Olympic;
+
+  CREATE VIEW vw_ParticipantsByOlympiad AS
+SELECT p.ParticipantID, p.Name, o.OlympiadName
+FROM Participants p -- Теперь таблица Participants существует
+JOIN Participation_in_Olympiads poi ON p.ParticipantID = poi.ParticipantID
+JOIN Olympiads o ON poi.OlympiadID = o.OlympiadID;
+
+  CREATE VIEW vw_SubjectsAndParticipants AS
+SELECT os.SubjectName, p.Name
+FROM Olympiad_Subjects os
+JOIN Participation_in_Olympiads poi ON os.SubjectID = poi.SubjectID
+JOIN Participants p ON poi.ParticipantID = p.ParticipantID;
+
+  CREATE VIEW vw_ParticipationResults AS
+SELECT p.Name, o.OlympiadName, pr.Results
+FROM Participants p
+JOIN Participation_in_Olympiads poi ON p.ParticipantID = poi.ParticipantID
+JOIN Olympiads o ON poi.OlympiadID = o.OlympiadID
+JOIN Participation_Results pr ON poi.ParticipationID = pr.ParticipationID
+
+  CREATE VIEW vw_TotalParticipants AS
+SELECT o.OlympiadName, COUNT(p.ParticipantID) AS TotalParticipants
+FROM Olympiads o
+JOIN Participation_in_Olympiads poi ON o.OlympiadID = poi.OlympiadID
+JOIN Participants p ON poi.ParticipantID = p.ParticipantID
+GROUP BY o.OlympiadName;
+
+CREATE VIEW vw_OlympiadSubjectsWithResults AS
+SELECT os.SubjectName, pr.Result
+FROM Olympiad_Subjects os
+JOIN Participation_in_Olympiads poi ON os.SubjectID = poi.SubjectID
+JOIN Participation_Results pr ON poi.ParticipationID = pr.ParticipationID;
